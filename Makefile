@@ -2,7 +2,7 @@ NAME	=	malloc
 SRCS	=	malloc.c
 OBJS	=	$(SRCS:.c=.o)
 CC	=	gcc
-CFLAGS	=	-Wall -Wextra -Werror -fsanitize=address -fno-omit-frame-pointer
+CFLAGS	=	-Wall -Wextra -Werror
 RM	=	rm -rf
 
 all	:	$(NAME)

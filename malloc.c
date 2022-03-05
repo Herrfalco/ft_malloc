@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 19:23:04 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/05 19:10:59 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/05 20:56:13 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ void	align_zone(t_zone *zone) {
 
 /*
 void	show_zone_param(char *name, t_zone *zone) {
-	printf("%s: %ld cells of %ld octets (%ld + %ld) = %ld octets (%ld pages of %d)\n",
+	printf("%s: %lu cells of %lu octets (%lu + %lu) = %lu octets (%lu pages of %d)\n",
 			name, zone->cell_nb, zone->cell_sz, sizeof(size_t), zone->cell_sz - sizeof(size_t),
 			zone->cell_nb * zone->cell_sz, zone->cell_nb * zone->cell_sz / getpagesize(),
 			getpagesize());
@@ -134,15 +134,15 @@ void 	*big_alloc(size_t size) {
 	if (!glob.big || glob.big > cell) {
 		cell->next = glob.big;
 		cell->prev = NULL;
-		if (glob.big && glob.big->next)
-			glob.big->next->prev = cell;
+		if (cell->next)
+			cell->next->prev = cell;
 		glob.big = cell;
 	} else {
 		for (ptr = glob.big; ptr->next && ptr->next < cell; ptr = ptr->next);
 		cell->next = ptr->next;
 		cell->prev = ptr;
-		if (ptr->next)
-			ptr->next->prev = cell;
+		if (cell->next)
+			cell->next->prev = cell;
 		ptr->next = cell;
 	}
 	return (++cell);
@@ -177,8 +177,6 @@ t_bool	free_ptr(void *ptr) {
 	t_big_hdr	*cell = ptr;
 
 	--cell;
-	printf("prev:%p\n", cell->prev);
-	printf("next:%p\n", cell->next);
 	if (cell->prev)
 		cell->prev->next = cell->next;
 	else
@@ -189,6 +187,8 @@ t_bool	free_ptr(void *ptr) {
 }
 
 void	ft_free(void *ptr) {
+	if (!ptr)
+		return;
 	(void)(free_from_zone(ptr, &glob.tiny)
 			|| free_from_zone(ptr, &glob.small)
 			|| free_ptr(ptr));
@@ -204,57 +204,56 @@ char	*ptr_format(void *ptr) {
 	return (buff);
 }
 
-void	show_alloc_zone(t_zone *zone) {
+size_t		show_alloc_zone(t_zone *zone) {
 	uint8_t		*hdr;
 	uint8_t		*data;
 	size_t		size;
+	size_t		total = 0;
 
 	for (size_t i = 0; i < zone->cell_nb; ++i) {
 		hdr = ((uint8_t *)zone->mem) + i * zone->cell_sz;
 		size = *((size_t *)hdr);
 		if (size) {
 			data = hdr + sizeof(size_t);
-			printf("%s - %s : %ld octets\n", ptr_format(data), ptr_format(data + size), size);
+			printf("    %s - %s : %lu octets\n", ptr_format(data), ptr_format(data + size), size);
+			total += size;
 		}
 	}
+	return (total);
 }
 
-void	show_big_alloc(void) {
-	for (t_big_hdr *ptr = glob.big; ptr; ptr = ptr->next)
-		printf("%s - %s : %ld octets\n", ptr_format(ptr + 1),
+size_t		show_big_alloc(void) {
+	size_t		total = 0;
+
+	for (t_big_hdr *ptr = glob.big; ptr; ptr = ptr->next) {
+		printf("    %s - %s : %lu octets\n", ptr_format(ptr + 1),
 				ptr_format(((uint8_t *)(ptr + 1)) + ptr->size), ptr->size);
+		total += ptr->size;
+	}
+	return (total);
 }
 
 void	show_alloc_mem(void) {
+	size_t		total = 0;
+
 	printf("TINY : %s\n", ptr_format(glob.tiny.mem));	
 	if (glob.tiny.mem)
-		show_alloc_zone(&glob.tiny);
+		total += show_alloc_zone(&glob.tiny);
 	printf("SMALL : %s\n", ptr_format(glob.small.mem));	
 	if (glob.small.mem)
-		show_alloc_zone(&glob.small);
+		total += show_alloc_zone(&glob.small);
 	printf("LARGE : %s\n", ptr_format(glob.big));
 	if (glob.big)
-		show_big_alloc();
+		total += show_big_alloc();
+	printf("Total : %lu octets\n", total);
 }
 
 int		main(void) {
-	void	*m1 = ft_malloc(10000);
-	/*
-	void	*m2 = ft_malloc(20000);
-	void	*m3 = ft_malloc(30000);
-	void	*m4 = ft_malloc(40000);
-	void	*m5 = ft_malloc(50000);
-	*/
+	void	*mem[10000];
 
-	show_alloc_mem();
-	ft_free(m1);
-	/*
-	printf("\n");
-	show_alloc_mem();
-	ft_free(m2);
-	ft_free(m3);
-	ft_free(m4);
-	ft_free(m5);
-	*/
+	for (size_t i = 0; i < 10000; ++i)
+		mem[i] = ft_malloc(i);	
+	for (size_t i = 0; i < 10000; ++i)
+		ft_free(mem[i]);
 	return (0);
 }
