@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 19:23:04 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/05 20:56:13 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/06 08:51:25 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,10 @@ typedef enum				e_bool {
 	FALSE,
 	TRUE,
 }							t_bool;
+
+typedef struct				s_hdr {
+	size_t					size;
+} __attribute__((packed))	t_hdr;
 
 typedef struct				s_big_hdr {
 	size_t					size;
@@ -48,12 +52,12 @@ typedef struct				s_glob {
 t_glob				glob = {
 	.tiny = {
 		.cell_nb = MIN_CELL_NB,
-		.cell_sz = MIN_TNY_UP_LIM + sizeof(size_t),
+		.cell_sz = MIN_TNY_UP_LIM + sizeof(t_hdr),
 		.mem = NULL,
 	},
 	.small = {
 		.cell_nb = MIN_CELL_NB,
-		.cell_sz = MIN_SML_UP_LIM + sizeof(size_t),
+		.cell_sz = MIN_SML_UP_LIM + sizeof(t_hdr),
 		.mem = NULL,
 	},
 	.big = NULL,
@@ -76,7 +80,7 @@ void	align_zone(t_zone *zone) {
 				break;
 			for (;; ++cell_nb) {
 				zone_sz = cell_nb * cell_sz;
-				if (zone_sz == page_nb * getpagesize()) {
+				if (!(zone_sz % sizeof(size_t)) && zone_sz == page_nb * getpagesize()) {
 					zone->cell_sz = cell_sz;
 					zone->cell_nb = cell_nb;
 					return;
@@ -87,14 +91,12 @@ void	align_zone(t_zone *zone) {
 	}
 }
 
-/*
 void	show_zone_param(char *name, t_zone *zone) {
 	printf("%s: %lu cells of %lu octets (%lu + %lu) = %lu octets (%lu pages of %d)\n",
-			name, zone->cell_nb, zone->cell_sz, sizeof(size_t), zone->cell_sz - sizeof(size_t),
+			name, zone->cell_nb, zone->cell_sz, sizeof(t_hdr), zone->cell_sz - sizeof(t_hdr),
 			zone->cell_nb * zone->cell_sz, zone->cell_nb * zone->cell_sz / getpagesize(),
 			getpagesize());
 }
-*/
 
 void	init_glob(void) {
 	align_zone(&glob.tiny);
@@ -110,20 +112,20 @@ void	init_glob(void) {
 	glob.init = TRUE;
 }
 
-void	*space_from_zone(t_zone *zone, uint16_t size) {
-	size_t		*cell;
+t_hdr		*space_from_zone(t_zone *zone, uint16_t size) {
+	t_hdr		*cell;
 
 	for (size_t i = 0; i < zone->cell_nb; ++i) {
-		cell = (size_t *)(((uint8_t *)zone->mem) + i * zone->cell_sz);
-		if (!*cell) {
-			*cell = size;
-			return (++cell);
+		cell = (t_hdr *)(((uint8_t *)zone->mem) + i * zone->cell_sz);
+		if (!cell->size) {
+			cell->size = size;
+			return (cell);
 		}
 	}
 	return (NULL);
 }
 
-void 	*big_alloc(size_t size) {
+t_big_hdr 	*big_alloc(size_t size) {
 	t_big_hdr		*cell = NULL;
 	t_big_hdr		*ptr;
 
@@ -145,32 +147,39 @@ void 	*big_alloc(size_t size) {
 			cell->next->prev = cell;
 		ptr->next = cell;
 	}
-	return (++cell);
+	return (cell);
 }
 
-void	*ft_malloc(size_t size) {
-	void		*mem;
+void	*raw_malloc(size_t size, t_bool with_hdr) {
+	t_hdr		*mem;
 
 	if (!glob.init)	
 		init_glob();
 	if (!size || glob.err)
 		return (NULL);
-	if (size <= glob.tiny.cell_sz)
+	if (size <= glob.tiny.cell_sz - sizeof(t_hdr))
 		if ((mem = space_from_zone(&glob.tiny, size)))
-			return (mem);
-	if (size <= glob.small.cell_sz)
+			return (with_hdr ? mem : mem + 1);
+	if (size <= glob.small.cell_sz - sizeof(t_hdr))
 		if ((mem = space_from_zone(&glob.small, size)))
-			return (mem);
-	return (big_alloc(size));
+			return (with_hdr ? mem : mem + 1);
+	return (with_hdr ? big_alloc(size) : big_alloc(size) + 1);
+}
+
+void	*ft_malloc(size_t size) {
+	return (raw_malloc(size, FALSE));
+}
+
+t_bool	in_zone(void *ptr, t_zone *zone) {
+	return (ptr >= (void *)zone->mem && (uint8_t *)ptr
+			< (uint8_t *)zone->mem + zone->cell_nb * zone->cell_sz);
 }
 
 t_bool	free_from_zone(void *ptr, t_zone *zone) {
-	if (ptr >= (void *)zone->mem && (uint8_t *)ptr
-			< (uint8_t *)zone->mem + zone->cell_nb * zone->cell_sz) {
-		*(size_t *)(((uint8_t *)ptr) - sizeof(size_t)) = 0;
-		return (TRUE);
-	}
-	return (FALSE);
+	if (!in_zone(ptr, zone))
+		return (FALSE);
+	*(size_t *)(((uint8_t *)ptr) - sizeof(t_hdr)) = 0;
+	return (TRUE);
 }
 
 t_bool	free_ptr(void *ptr) {
@@ -212,10 +221,11 @@ size_t		show_alloc_zone(t_zone *zone) {
 
 	for (size_t i = 0; i < zone->cell_nb; ++i) {
 		hdr = ((uint8_t *)zone->mem) + i * zone->cell_sz;
-		size = *((size_t *)hdr);
+		size = ((t_hdr *)hdr)->size;
 		if (size) {
-			data = hdr + sizeof(size_t);
-			printf("    %s - %s : %lu octets\n", ptr_format(data), ptr_format(data + size), size);
+			data = hdr + sizeof(t_hdr);
+			printf("    %s - ", ptr_format(data));
+			printf("%s : %lu octets\n", ptr_format(data + size), size);
 			total += size;
 		}
 	}
@@ -226,8 +236,9 @@ size_t		show_big_alloc(void) {
 	size_t		total = 0;
 
 	for (t_big_hdr *ptr = glob.big; ptr; ptr = ptr->next) {
-		printf("    %s - %s : %lu octets\n", ptr_format(ptr + 1),
-				ptr_format(((uint8_t *)(ptr + 1)) + ptr->size), ptr->size);
+		printf("    %s - ", ptr_format(ptr + 1));
+		printf("%s : %lu octets\n", ptr_format(((uint8_t *)(ptr + 1)) + ptr->size),
+				ptr->size);
 		total += ptr->size;
 	}
 	return (total);
@@ -248,12 +259,69 @@ void	show_alloc_mem(void) {
 	printf("Total : %lu octets\n", total);
 }
 
-int		main(void) {
-	void	*mem[10000];
+void	copy_n_bytes(uint8_t *dst, uint8_t *src, size_t n) {
+	size_t		mod;
 
-	for (size_t i = 0; i < 10000; ++i)
-		mem[i] = ft_malloc(i);	
-	for (size_t i = 0; i < 10000; ++i)
-		ft_free(mem[i]);
+	if (!dst || !src)
+		return;
+	for (; n; n -= mod, dst += mod, src += mod) {
+		if (n >= sizeof(uint64_t)) {
+			*((uint64_t *)dst) = *((uint64_t *)src);
+			mod = sizeof(uint64_t);
+		} else if (n >= sizeof(uint32_t)) {
+			*((uint32_t *)dst) = *((uint32_t *)src);
+			mod = sizeof(uint32_t);
+		} else if (n >= sizeof(uint16_t)) {
+			*((uint16_t *)dst) = *((uint16_t *)src);
+			mod = sizeof(uint16_t);
+		} else if (n >= sizeof(uint8_t)) {
+			*((uint8_t *)dst) = *((uint8_t *)src);
+			mod = sizeof(uint8_t);
+		}
+	}
+}
+
+void	*ft_realloc(void *ptr, size_t size) {
+	size_t		hdr_size = sizeof(t_hdr);
+	void		*hdr = ((uint8_t *)ptr) - hdr_size;
+	size_t		old_size = ((t_hdr *)hdr)->size;
+	void		*new_hdr;
+
+	if (in_zone(ptr, &glob.tiny)) {
+		((t_hdr *)hdr)->size = size;
+		if (size + hdr_size <= glob.tiny.cell_sz)
+			return (ptr);
+	} else if (in_zone(ptr, &glob.small)) {
+		((t_hdr *)hdr)->size = size;
+		if (size + hdr_size <= glob.small.cell_sz)
+			return (ptr);
+	} else {
+		hdr_size = sizeof(t_big_hdr);
+		hdr = ((uint8_t *)ptr) - hdr_size;
+		old_size = ((t_big_hdr *)hdr)->size;
+		((t_big_hdr *)hdr)->size = size;
+		if (size + hdr_size <= ((old_size + hdr_size) / getpagesize()
+					+ !!((old_size + hdr_size) % getpagesize())) * getpagesize())
+			return (ptr);
+	}
+	new_hdr = raw_malloc(size, TRUE);
+	copy_n_bytes(new_hdr, hdr, (old_size < size ? old_size : size) + hdr_size);
+	ft_free(ptr);
+	return (new_hdr + hdr_size);
+}
+
+int		main(void) {
+	void	*mem = ft_malloc(10);
+
+	show_zone_param("TINY:", &glob.tiny);
+	show_zone_param("SMALL:", &glob.small);
+	show_alloc_mem();
+	printf("\n");
+	ft_realloc(mem, 228);
+	show_alloc_mem();
+	printf("\n");
+	ft_realloc(mem, 10000);
+	show_alloc_mem();
+	ft_free(mem);
 	return (0);
 }
