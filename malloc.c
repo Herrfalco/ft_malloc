@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 19:23:04 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/07 16:03:04 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/07 16:23:05 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #define DELIMITER			"--------------------------------------------" \
 							"--------------------------------------------\n"
 #define DEBUG_ENV_VAR		"M_DEBUG"
+#define DEBUG_ENV_FILE		"M_DEBUG_FILE"
 #define DEBUG_LAB			"no:minimal:layout:full"
 #define DEBUG_OP			"(+) Allocate:(-) Free:(^) Increase:(v) Decrease:(&) Reallocate"
 #define BUFF_SIZE			128
@@ -72,6 +73,7 @@ typedef struct				s_glob {
 	t_big_hdr				*big;
 	t_bool					init;
 	t_lab_idx				debug;
+	FILE					*debug_out;
 }							t_glob;
 
 t_glob		glob = {
@@ -102,24 +104,24 @@ void		show_dump(void *ptr, size_t size, char *pad) {
 		byte = ((uint8_t *)ptr)[i];
 		if (init || (!zero && !(i % 24)) || (zero && byte)) {
 			if (zero && byte) {
-				printf(".. [%lu x 00]", zero);
+				fprintf(glob.debug_out, ".. [%lu x 00]", zero);
 				zero = 0;
 			}
 			if (init) {
 				init = FALSE;
 			} else
-				printf("\n");
-			printf("%s%-5lu  ", pad, i);
+				fprintf(glob.debug_out, "\n");
+			fprintf(glob.debug_out, "%s%-5lu  ", pad, i);
 		}
 		if (!byte) {
 			zero += 1;
 		} else {
-			printf("%02x ", byte);
+			fprintf(glob.debug_out, "%02x ", byte);
 		}
 	}
 	if (zero)
-		printf(".. [%lu x 00]", zero);
-	printf("\n");
+		fprintf(glob.debug_out, ".. [%lu x 00]", zero);
+	fprintf(glob.debug_out, "\n");
 }
 
 size_t		show_alloc_zone(char *pad, char *pad_dump, t_zone *zone) {
@@ -133,7 +135,7 @@ size_t		show_alloc_zone(char *pad, char *pad_dump, t_zone *zone) {
 		size = ((t_hdr *)hdr)->size;
 		if (size) {
 			data = (uint8_t *)(hdr + 1);
-			printf("%s%p - %p : %lu octets\n", pad, data, data + size, size);
+			fprintf(glob.debug_out, "%s%p - %p : %lu octets\n", pad, data, data + size, size);
 			show_dump(data, size, pad_dump);	
 			total += size;
 		}
@@ -145,7 +147,7 @@ size_t		show_big_alloc(char *pad, char *pad_dump) {
 	size_t		total = 0;
 
 	for (t_big_hdr *ptr = glob.big; ptr; ptr = ptr->next) {
-		printf("%s%p - %p : %lu octets\n", pad, ptr + 1,
+		fprintf(glob.debug_out, "%s%p - %p : %lu octets\n", pad, ptr + 1,
 			ptr + 1 + ptr->size, ptr->size);
 		show_dump(ptr + 1, ptr->size, pad_dump);	
 		total += ptr->size;
@@ -156,16 +158,16 @@ size_t		show_big_alloc(char *pad, char *pad_dump) {
 void		show_layout(char *pad_zone, char *pad_mem, char *pad_dump, char *pad_tot) {
 	size_t		total = 0;
 
-	printf("%sTINY  : %p\n", pad_zone, glob.tiny.mem);
+	fprintf(glob.debug_out, "%sTINY  : %p\n", pad_zone, glob.tiny.mem);
 	if (glob.tiny.mem)
 		total += show_alloc_zone(pad_mem, pad_dump, &glob.tiny);
-	printf("%sSMALL : %p\n", pad_zone, glob.small.mem);
+	fprintf(glob.debug_out, "%sSMALL : %p\n", pad_zone, glob.small.mem);
 	if (glob.small.mem)
 		total += show_alloc_zone(pad_mem, pad_dump, &glob.small);
-	printf("%sLARGE : %p\n", pad_zone, glob.big);
+	fprintf(glob.debug_out, "%sLARGE : %p\n", pad_zone, glob.big);
 	if (glob.big)
 		total += show_big_alloc(pad_mem, pad_dump);
-	printf("%sTotal = %lu octets\n", pad_tot, total);
+	fprintf(glob.debug_out, "%sTotal = %lu octets\n", pad_tot, total);
 }
 
 void		show_alloc_mem(void) {
@@ -184,24 +186,24 @@ void		show_deb(t_debug deb, t_bool res, size_t s1, size_t s2, void *p1, void *p2
 
 	if (glob.debug < MINIMAL)
 		return;
-	printf("%-15.*s", (int)str_len(DEBUG_OP + deb, ':'), DEBUG_OP + deb);
+	fprintf(glob.debug_out, "%-15.*s", (int)str_len(DEBUG_OP + deb, ':'), DEBUG_OP + deb);
 	if (!res) {
-		printf("FAILED\n");
+		fprintf(glob.debug_out, "FAILED\n");
 		return;
 	}
 	if (deb == ALLOC || deb == FREE)
 		sprintf(buff, "%ld byte(s)", s1);
 	else
 		sprintf(buff, "%ld -> %ld byte(s)", s1, s2);
-	printf("%33s", buff);
+	fprintf(glob.debug_out, "%33s", buff);
 	if (deb == REALLOC)
 		sprintf(buff, "%p -> %p", p1, p2);
 	else
 		sprintf(buff, "%p", p1);
-	printf("%40s\n", buff);
+	fprintf(glob.debug_out, "%40s\n", buff);
 	if (glob.debug >= LAYOUT) {
 		show_layout(" |  ", "    -  ", "        #", " >  ");
-		printf(DELIMITER);
+		fprintf(glob.debug_out, DELIMITER);
 	}
 }
 
@@ -236,13 +238,13 @@ void		show_zone_param(char *name, t_zone *zone) {
 	char		buff[BUFF_SIZE];
 
 	sprintf(buff, "%s:", name);
-	printf("%-7s", buff);
+	fprintf(glob.debug_out, "%-7s", buff);
 	sprintf(buff, "%lu cells of %lu octets (%lu + %lu)", zone->cell_nb, zone->cell_sz,
 			sizeof(t_hdr), zone->cell_sz - sizeof(t_hdr));
-	printf("%-40s", buff);
+	fprintf(glob.debug_out, "%-40s", buff);
 	sprintf(buff, "%lu octets (%lu pages of %d)", zone->cell_nb * zone->cell_sz,
 			zone->cell_nb * zone->cell_sz / getpagesize(), getpagesize());
-	printf("=%40s\n", buff);
+	fprintf(glob.debug_out, "=%40s\n", buff);
 }
 
 char		sw_case(char c) {
@@ -278,8 +280,16 @@ t_lab_idx	labcmp_icase(char *val) {
 }
 
 t_bool		init_glob(void) {
-	if (getenv(DEBUG_ENV_VAR))
-		glob.debug = labcmp_icase(getenv(DEBUG_ENV_VAR));
+	char	*env_val;
+
+	if ((env_val = getenv(DEBUG_ENV_VAR)))
+		glob.debug = labcmp_icase(env_val);
+	if ((env_val = getenv(DEBUG_ENV_FILE))) {
+		glob.debug_out = fopen(env_val, "w");
+		fclose(glob.debug_out);
+		glob.debug_out = fopen(env_val, "a");
+	} else
+		glob.debug_out = stderr;
 	align_zone(&glob.tiny);
 	align_zone(&glob.small);
 	if ((glob.tiny.mem = mmap(NULL, glob.tiny.cell_nb * glob.tiny.cell_sz,
@@ -288,10 +298,10 @@ t_bool		init_glob(void) {
 					PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED)
 		return (FALSE);
 	if (glob.debug > NO) {
-		printf(DELIMITER);
+		fprintf(glob.debug_out, DELIMITER);
 		show_zone_param("TINY", &glob.tiny);
 		show_zone_param("SMALL", &glob.small);
-		printf(DELIMITER);
+		fprintf(glob.debug_out, DELIMITER);
 	}
 	glob.init = TRUE;
 	return (TRUE);
