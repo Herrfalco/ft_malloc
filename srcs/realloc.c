@@ -6,11 +6,11 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:36:21 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:38:16 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/09 10:54:56 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "header.h"
+#include "../hdrs/header.h"
 
 t_bool		in_place(void *ptr, size_t size, size_t	*old_size) {
 	t_hdr		*hdr = ((t_hdr *)ptr) - 1;
@@ -41,7 +41,7 @@ t_bool		in_place(void *ptr, size_t size, size_t	*old_size) {
 	return (FALSE);
 }
 
-void		*ft_realloc(void *ptr, size_t size) {
+void		*realloc(void *ptr, size_t size) {
 	t_hdr		*new_hdr;
 	t_big_hdr	*new_big;
 	t_bool		is_big;

@@ -6,11 +6,11 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:35:26 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:36:05 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/09 09:49:08 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "header.h"
+#include "../hdrs/header.h"
 
 void		show_zone_param(char *name, t_zone *zone) {
 	char		buff[BUFF_SIZE];
@@ -59,6 +59,7 @@ void		show_dump(void *ptr, size_t size, char *pad) {
 	if (zero > 1)
 		fprintf(glob.debug_out, ".. [%lu x 00]", zero);
 	fprintf(glob.debug_out, "\n");
+	(void)line;
 }
 
 size_t		show_alloc_zone(char *pad, char *pad_dump, t_zone *zone, t_bool dump) {

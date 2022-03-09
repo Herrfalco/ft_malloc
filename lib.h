@@ -1,31 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   lib.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/09 08:38:48 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:40:28 by fcadet           ###   ########.fr       */
+/*   Created: 2022/03/09 09:50:23 by fcadet            #+#    #+#             */
+/*   Updated: 2022/03/09 10:59:52 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//why rlimit ?
-//error handling
+#ifndef LIB_H
+#define LIB_H
 
-#include "header.h"
+#include <stdlib.h>
 
-int			main(void) {
-	void	*mem = ft_malloc(52);
-	void	*mem1 = ft_malloc(10000);
+///////////////// malloc.c /////////////////
 
-	*((int *)mem) = 99999;
-	*((long *)mem + 3) = 66;
-	mem = ft_realloc(mem, 5000);
-	for (size_t i = 0; i < 100; ++i)
-		((char *)mem1)[i] = i;
-	mem1 = ft_realloc(mem1, 50);
-	ft_free(mem);
-	ft_free(mem1);
-	return (0);
-}
+void		*malloc(size_t size);
+
+///////////////// realloc.c ////////////////
+
+void		*realloc(void *ptr, size_t size);
+
+///////////////// free.c ///////////////////
+
+void		free(void *ptr);
+
+#endif //LIB_H

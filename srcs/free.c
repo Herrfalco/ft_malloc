@@ -6,11 +6,11 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:22:53 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:24:12 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/09 10:55:08 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "header.h"
+#include "../hdrs/header.h"
 
 size_t		free_from_zone(void *ptr, t_zone *zone) {
 	t_hdr		*hdr = ((t_hdr *)ptr) - 1;
@@ -47,7 +47,7 @@ void		raw_free(void *ptr, t_bool debug) {
 		show_deb(FREE, !!size, size, 0, ptr, NULL);
 }
 
-void		ft_free(void *ptr) {
+void		free(void *ptr) {
 	pthread_mutex_lock(&glob.mut);
 	raw_free(ptr, TRUE);
 	pthread_mutex_unlock(&glob.mut);

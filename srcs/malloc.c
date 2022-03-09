@@ -6,11 +6,11 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 19:23:04 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:40:23 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/09 10:55:17 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "header.h"
+#include "../hdrs/header.h"
 
 t_hdr		*space_from_zone(t_zone *zone, uint16_t size) {
 	t_hdr		*cell;
@@ -73,7 +73,7 @@ void		*raw_malloc(size_t size, t_bool with_hdr, t_bool *is_big) {
 	return (NULL);
 }
 
-void		*ft_malloc(size_t size) {
+void		*malloc(size_t size) {
 	void	*mem;
 
 	pthread_mutex_lock(&glob.mut);
