@@ -1,15 +1,20 @@
 NAME	=	malloc
-SRCS	=	malloc.c
+SRCS	=	srcs/free.c \
+			srcs/glob.c \
+			srcs/main.c \
+			srcs/malloc.c \
+			srcs/realloc.c \
+			srcs/show.c \
+			srcs/utils.c
 OBJS	=	$(SRCS:.c=.o)
-CC	=	gcc
+CC		=	gcc
 CFLAGS	=	-Wall -Wextra -Werror
-LIBS	=	-lpthread
-RM	=	rm -rf
+RM		=	rm -rf
 
-all	:	$(NAME)
+all		:	$(NAME)
 
 $(NAME)	:	$(OBJS)
-			$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+			$(CC) $(CFLAGS) $^ -o $@
 
 %.o	:	%.c
 			$(CC) $(CFLAGS) -c $< -o $@
@@ -20,4 +25,4 @@ clean	:
 fclean	:	clean
 			$(RM) $(NAME)
 
-re	:	fclean all
+re		:	fclean all
