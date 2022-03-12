@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 19:23:04 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 10:55:17 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/12 19:19:44 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,7 @@ void		*raw_malloc(size_t size, t_bool with_hdr, t_bool *is_big) {
 	t_hdr		*mem;
 	t_big_hdr	*big_mem;
 
-	if (!glob.init)
-		if (!init_glob())
-			return (NULL);
-	if (!size)
+	if ((!glob.init && !init_glob()) || !size)
 		return (NULL);
 	if (is_big)
 		*is_big = FALSE;

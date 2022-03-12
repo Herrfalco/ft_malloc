@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:22:53 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 10:55:08 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/12 19:25:13 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@ size_t		free_from_zone(void *ptr, t_zone *zone) {
 	t_hdr		*hdr = ((t_hdr *)ptr) - 1;
 	size_t		old_size = hdr->size;
 
-	if (!in_zone(ptr, zone))
-		return (0);
 	hdr->size = 0;
 	return (old_size);
 }
@@ -35,20 +33,30 @@ size_t		free_big(void *ptr) {
 	return (munmap(hdr, hdr->size + sizeof(t_big_hdr)) ? 0 : old_size);
 }
 
-void		raw_free(void *ptr, t_bool debug) {
+size_t		raw_free(void *ptr) {
 	size_t		size;
+	t_loc		loc;
 
-	if (!ptr)
-		return;
-	(void)((size = free_from_zone(ptr, &glob.tiny))
-		|| (size = free_from_zone(ptr, &glob.small))
-		|| (size = free_big(ptr)));
-	if (debug)
-		show_deb(FREE, !!size, size, 0, ptr, NULL);
+	if (!ptr || !glob.init)
+		return(0);
+	switch (wich_loc(ptr)) {
+		case TINY:
+			size = free_from_zone(ptr, &glob.tiny);
+			break;
+		case SMALL:
+			size = free_from_zone(ptr, &glob.small);
+			break;
+		case BIG:
+			size = free_big(ptr);
+	}
+	return (size);
 }
 
 void		free(void *ptr) {
+	size_t		size;
+
 	pthread_mutex_lock(&glob.mut);
-	raw_free(ptr, TRUE);
+	size = raw_free(ptr);
+	show_deb(FREE, !!size, size, 0, ptr, NULL);
 	pthread_mutex_unlock(&glob.mut);
 }

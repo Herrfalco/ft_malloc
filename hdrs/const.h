@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:01 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:27:33 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/12 19:54:13 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,10 @@
 #define MIN_SML_UP_LIM		4096
 #define DELIMITER			"--------------------------------------------" \
 							"--------------------------------------------\n"
+#define LAYOUT_PAD			" |  ," \
+							"    -  ," \
+							"        #," \
+							" >  "
 #define DEBUG_ENV_VAR		"M_DEBUG"
 #define DEBUG_ENV_FILE		"M_DEBUG_FILE"
 #define DEBUG_LAB			"no," \
@@ -30,6 +34,20 @@
 							"(v) Decrease," \
 							"(&) Reallocate"
 #define BUFF_SIZE			128
+
+typedef enum				e_loc {
+	OTHER,
+	TINY,
+	SMALL,
+	BIG,
+}							t_loc;
+
+typedef enum				e_pad {
+	ZONE = 0,
+	MEM = 5,	
+	DUMP = 13,
+	TOTAL = 23,
+}							t_pad;
 
 typedef enum				e_lab_idx {
 	NO = 0,

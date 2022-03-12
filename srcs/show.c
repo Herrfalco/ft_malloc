@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:35:26 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 09:49:08 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/12 20:13:18 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,13 @@ void		show_zone_param(char *name, t_zone *zone) {
 	fprintf(glob.debug_out, "=%40s\n", buff);
 }
 
-void		show_dump(void *ptr, size_t size, char *pad) {
+void		show_dump(void *ptr, size_t size) {
 	t_bool		init = TRUE;
 	size_t		zero = 0;
 	size_t		line;
 	uint8_t		byte;
-
+	char		*pad = LAYOUT_PAD + DUMP;
+	int			pad_prec = (int)str_len(pad, ',');
 
 	if (glob.debug < FULL)
 		return;
@@ -62,57 +63,67 @@ void		show_dump(void *ptr, size_t size, char *pad) {
 	(void)line;
 }
 
-size_t		show_alloc_zone(char *pad, char *pad_dump, t_zone *zone, t_bool dump) {
+size_t		show_alloc_zone(t_zone *zone, t_bool dump) {
 	t_hdr		*hdr;
 	uint8_t		*data;
 	size_t		size;
 	size_t		total = 0;
+	char		*pad = LAYOUT_PAD + MEM;
+	int			pad_prec = (int)str_len(pad, ',');
 
 	for (size_t i = 0; i < zone->cell_nb; ++i) {
 		hdr = (t_hdr *)(((uint8_t *)zone->mem) + i * zone->cell_sz);
 		size = ((t_hdr *)hdr)->size;
 		if (size) {
 			data = (uint8_t *)(hdr + 1);
-			fprintf(glob.debug_out, "%s%p - %p : %lu octets\n", pad, data, data + size, size);
+			fprintf(glob.debug_out, "%.*s%p - %p : %lu octets\n", pad_prec, pad,
+				data, data + size, size);
 			if (dump)
-				show_dump(data, size, pad_dump);	
+				show_dump(data, size);	
 			total += size;
 		}
 	}
 	return (total);
 }
 
-size_t		show_big_alloc(char *pad, char *pad_dump, t_bool dump) {
+size_t		show_big_alloc(t_bool dump) {
 	size_t		total = 0;
+	char		*pad = LAYOUT_PAD + MEM;
+	int			pad_prec = (int)str_len(pad, ',');
 
 	for (t_big_hdr *ptr = glob.big; ptr; ptr = ptr->next) {
-		fprintf(glob.debug_out, "%s%p - %p : %lu octets\n", pad, ptr + 1,
+		fprintf(glob.debug_out, "%.*ss%p - %p : %lu octets\n", pad_prec, pad, ptr + 1,
 			ptr + 1 + ptr->size, ptr->size);
 		if (dump)
-			show_dump(ptr + 1, ptr->size, pad_dump);	
+			show_dump(ptr + 1, ptr->size);	
 		total += ptr->size;
 	}
 	return (total);
 }
 
-void		show_layout(char *pad_zone, char *pad_mem, char *pad_dump,
-		char *pad_tot, t_bool dump) {
+void		show_layout(t_bool dump) {
 	size_t		total = 0;
+	char		*padz = LAYOUT_PAD + ZONE;
+	char		*padt = LAYOUT_PAD + TOTAL;
+	int			padz_prec = (int)str_len(padz, ',');
+	int			padt_prec = (int)str_len(padt, ',');
 
-	fprintf(glob.debug_out, "%sTINY  : %p\n", pad_zone, glob.tiny.mem);
+	if (glob.debug < LAYOUT)
+		return;
+	fprintf(glob.debug_out, "%.*sTINY  : %p\n", padz_prec, padz, glob.tiny.mem);
 	if (glob.tiny.mem)
-		total += show_alloc_zone(pad_mem, pad_dump, &glob.tiny, dump);
-	fprintf(glob.debug_out, "%sSMALL : %p\n", pad_zone, glob.small.mem);
+		total += show_alloc_zone(&glob.tiny, dump);
+	fprintf(glob.debug_out, "%.*sSMALL : %p\n", padz_prec, padz, glob.small.mem);
 	if (glob.small.mem)
-		total += show_alloc_zone(pad_mem, pad_dump, &glob.small, dump);
-	fprintf(glob.debug_out, "%sLARGE : %p\n", pad_zone, glob.big);
+		total += show_alloc_zone(&glob.small, dump);
+	fprintf(glob.debug_out, "%.*sLARGE : %p\n", padz_prec, padz, glob.big);
 	if (glob.big)
-		total += show_big_alloc(pad_mem, pad_dump, dump);
-	fprintf(glob.debug_out, "%sTotal = %lu octets\n", pad_tot, total);
+		total += show_big_alloc(dump);
+	fprintf(glob.debug_out, "%.*sTotal = %lu octets\n", padt_prec, padt, total);
 }
 
 void		show_alloc_mem(void) {
-	show_layout("", "", "", "", FALSE);
+	show_layout(FALSE);
 }
 
 void		show_deb(t_debug deb, t_bool res, size_t s1, size_t s2, void *p1, void *p2) {
@@ -121,10 +132,8 @@ void		show_deb(t_debug deb, t_bool res, size_t s1, size_t s2, void *p1, void *p2
 	if (glob.debug < MINIMAL)
 		return;
 	fprintf(glob.debug_out, "%-15.*s", (int)str_len(DEBUG_OP + deb, ','), DEBUG_OP + deb);
-	if (!res) {
-		fprintf(glob.debug_out, "FAILED\n");
-		return;
-	}
+	if (!res)
+		return ((void)fprintf(glob.debug_out, "FAILED\n"));
 	if (deb == ALLOC || deb == FREE)
 		sprintf(buff, "%ld byte(s)", s1);
 	else
@@ -135,8 +144,6 @@ void		show_deb(t_debug deb, t_bool res, size_t s1, size_t s2, void *p1, void *p2
 	else
 		sprintf(buff, "%p", p1);
 	fprintf(glob.debug_out, "%40s\n", buff);
-	if (glob.debug < LAYOUT)
-		return;
-	show_layout(" |  ", "    -  ", "        #", " >  ", TRUE);
+	show_layout(TRUE);
 	fprintf(glob.debug_out, DELIMITER);
 }

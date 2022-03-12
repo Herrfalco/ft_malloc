@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:31:48 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 09:53:06 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/12 19:25:25 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ size_t		str_len(char *str, char del);
 char		sw_case(char c);
 t_lab_idx	labcmp_icase(char *val);
 void		copy_n_bytes(uint8_t *dst, uint8_t *src, size_t n);
-t_bool		in_zone(void *ptr, t_zone *zone);
+t_loc		wich_loc(void *ptr);
 
 ///////////////// show.c ///////////////////
 
@@ -37,6 +37,6 @@ void		*raw_malloc(size_t size, t_bool with_hdr, t_bool *is_big);
 
 ///////////////// free.c ///////////////////
 
-void		raw_free(void *ptr, t_bool debug);
+size_t		raw_free(void *ptr);
 
 #endif //PROTO_H

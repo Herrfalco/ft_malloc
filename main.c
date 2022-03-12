@@ -6,14 +6,14 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:38:48 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 11:53:43 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/10 15:56:53 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//why rlimit ?
 //error handling
 
 #include "lib.h"
+#include "stdio.h"
 
 int			main(void) {
 	void	*mem = malloc(52);
