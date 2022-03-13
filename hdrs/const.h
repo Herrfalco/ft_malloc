@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:01 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 08:08:11 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 14:57:16 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@
 							"        #," \
 							" >  "
 #define DEBUG_ENV_VAR		"M_DEBUG"
-#define DEBUG_ENV_FILE		"M_DEBUG_FILE"
 #define DEBUG_LAB			"no," \
 							"minimal," \
 							"layout," \
@@ -35,6 +34,7 @@
 							"(&) Reallocate,"\
 							"(*) Display"
 #define BUFF_SIZE			128
+#define STDOUT				stderr
 
 typedef enum				e_loc {
 	OTHER,

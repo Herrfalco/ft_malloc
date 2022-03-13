@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:22:53 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 12:09:11 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 14:45:25 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,8 @@ size_t		raw_free(void *ptr) {
 void		free(void *ptr) {
 	size_t		size;
 
-//	pthread_mutex_lock(&glob.mut);
+	pthread_mutex_lock(&glob.mut);
 	size = raw_free(ptr);
 	show_deb(FREE, !!size, size, 0, ptr, NULL);
-//	pthread_mutex_unlock(&glob.mut);
+	pthread_mutex_unlock(&glob.mut);
 }

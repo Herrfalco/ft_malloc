@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:59 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:28:27 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 13:09:29 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,9 @@ typedef struct				s_glob {
 	t_zone					tiny;
 	t_zone					small;
 	t_big_hdr				*big;
-	t_bool					init;
 	t_lab_idx				debug;
-	FILE					*debug_out;
 	pthread_mutex_t			mut;
+	t_bool					init;
 }							t_glob;
 
 #endif //STRUCT_H

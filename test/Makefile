@@ -2,7 +2,7 @@ NAME	=	test
 SRCS	=	test.c
 OBJS	=	$(SRCS:.c=.o)
 CC	=	gcc
-CFLAGS	=	-Wall -Wextra -Werror
+CFLAGS	=	-Wall -Wextra
 RM	=	rm -rf
 
 all	:	$(NAME)

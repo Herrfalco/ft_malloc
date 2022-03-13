@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:31:48 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 08:25:20 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 14:05:59 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,30 +15,26 @@
 
 ///////////////// utils.c //////////////////
 
-size_t		str_len(char *str, char del);
-char		sw_case(char c);
-t_lab_idx	labcmp_icase(char *val);
-void		copy_n_bytes(uint8_t *dst, uint8_t *src, size_t n);
+size_t				str_len(char *str, char del);
+char				sw_case(char c);
+t_lab_idx			labcmp_icase(char *val);
+void				copy_n_bytes(uint8_t *dst, uint8_t *src, size_t n);
 
 ///////////////// loc.c //////////////////
 
-t_loc		wich_loc(void *ptr);
+t_loc				wich_loc(void *ptr);
 
 ///////////////// show.c ///////////////////
 
-void		show_zone_param(char *name, t_zone *zone);
-void		show_deb(t_debug deb, t_bool res, size_t s1, size_t s2, void *p1, void *p2);
-
-///////////////// glob.c ///////////////////
-
-t_bool		init_glob(void);
+void				show_zone_param(char *name, t_zone *zone);
+void				show_deb(t_debug deb, t_bool res, size_t s1, size_t s2, void *p1, void *p2);
 
 ///////////////// malloc.c /////////////////
 
-void		*raw_malloc(size_t size, t_bool with_hdr, t_bool *is_big);
+void				*raw_malloc(size_t size, t_bool with_hdr, t_bool *is_big);
 
 ///////////////// free.c ///////////////////
 
-size_t		raw_free(void *ptr);
+size_t				raw_free(void *ptr);
 
 #endif //PROTO_H

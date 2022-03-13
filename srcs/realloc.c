@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:36:21 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 12:09:23 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 14:45:15 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,14 +79,14 @@ static void		*raw_realloc(void *ptr, size_t size, size_t *old_size, t_debug *deb
 	return (res);
 }
 
-void		*realloc(void *ptr, size_t size) {
+void			*realloc(void *ptr, size_t size) {
 	void		*res;
-	t_debug		deb;
+	t_debug		deb = REALLOC;
 	size_t		old_size;
 
-//	pthread_mutex_lock(&glob.mut);
+	pthread_mutex_lock(&glob.mut);
 	res = raw_realloc(ptr, size, &old_size, &deb);
 	show_deb(deb, !!res, old_size, size, ptr, res);
-//	pthread_mutex_unlock(&glob.mut);
+	pthread_mutex_unlock(&glob.mut);
 	return (res);
 }

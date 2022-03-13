@@ -6,14 +6,14 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 09:50:23 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 08:02:58 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 14:46:59 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIB_H
 #define LIB_H
 
-#include <stdlib.h>
+#include <stddef.h>
 
 ///////////////// malloc.c /////////////////
 

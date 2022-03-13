@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:26:00 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:33:29 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 14:44:03 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <pthread.h>
+#include <fcntl.h>
 
 #include "const.h"
 #include "struct.h"
