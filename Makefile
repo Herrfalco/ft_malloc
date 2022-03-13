@@ -9,7 +9,8 @@ SRCS		=	srcs/free.c \
 			srcs/malloc.c \
 			srcs/realloc.c \
 			srcs/show.c \
-			srcs/utils.c
+			srcs/utils.c \
+			srcs/loc.c
 OBJS		=	$(SRCS:.c=.o)
 CC		=	gcc
 EFLAGS		=	-Wall -Wextra -Werror

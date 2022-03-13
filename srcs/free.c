@@ -6,13 +6,13 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:22:53 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/12 19:25:13 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 12:09:11 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../hdrs/header.h"
 
-size_t		free_from_zone(void *ptr, t_zone *zone) {
+static size_t		free_from_zone(void *ptr) {
 	t_hdr		*hdr = ((t_hdr *)ptr) - 1;
 	size_t		old_size = hdr->size;
 
@@ -20,7 +20,7 @@ size_t		free_from_zone(void *ptr, t_zone *zone) {
 	return (old_size);
 }
 
-size_t		free_big(void *ptr) {
+static size_t		free_big(void *ptr) {
 	t_big_hdr	*hdr = ((t_big_hdr *)ptr) - 1;
 	size_t		old_size = hdr->size;
 
@@ -37,26 +37,20 @@ size_t		raw_free(void *ptr) {
 	size_t		size;
 	t_loc		loc;
 
-	if (!ptr || !glob.init)
+	if (!ptr || !glob.init || (loc = wich_loc(ptr)) == OTHER)
 		return(0);
-	switch (wich_loc(ptr)) {
-		case TINY:
-			size = free_from_zone(ptr, &glob.tiny);
-			break;
-		case SMALL:
-			size = free_from_zone(ptr, &glob.small);
-			break;
-		case BIG:
-			size = free_big(ptr);
-	}
+	if (loc == TINY || loc == SMALL)
+		size = free_from_zone(ptr);
+	else
+		size = free_big(ptr);
 	return (size);
 }
 
 void		free(void *ptr) {
 	size_t		size;
 
-	pthread_mutex_lock(&glob.mut);
+//	pthread_mutex_lock(&glob.mut);
 	size = raw_free(ptr);
 	show_deb(FREE, !!size, size, 0, ptr, NULL);
-	pthread_mutex_unlock(&glob.mut);
+//	pthread_mutex_unlock(&glob.mut);
 }

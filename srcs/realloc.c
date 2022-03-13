@@ -6,13 +6,13 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:36:21 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/12 19:39:23 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 12:09:23 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../hdrs/header.h"
 
-void		*in_place(void *ptr, size_t size, size_t *old_size, t_loc loc,
+static void		*in_place(void *ptr, size_t size, size_t *old_size, t_loc loc,
 		t_debug *deb) {
 	t_hdr		*hdr = ((t_hdr *)ptr) - 1;
 	t_big_hdr	*big_hdr = ((t_big_hdr *)ptr) - 1;
@@ -42,11 +42,13 @@ void		*in_place(void *ptr, size_t size, size_t *old_size, t_loc loc,
 				big_hdr->size = size;
 				return (ptr);
 			}
+		default:
+			break;
 	}
 	return (NULL);
 }
 
-void		*move_alloc(void *ptr, size_t size, size_t old_size, t_debug *deb) {
+static void		*move_alloc(void *ptr, size_t size, size_t old_size, t_debug *deb) {
 	t_bool		is_big;
 	t_hdr		*new_hdr;
 	t_big_hdr	*new_big;
@@ -66,7 +68,7 @@ void		*move_alloc(void *ptr, size_t size, size_t old_size, t_debug *deb) {
 	}
 }
 
-void		*raw_realloc(void *ptr, size_t size, size_t *old_size, t_debug *deb) {
+static void		*raw_realloc(void *ptr, size_t size, size_t *old_size, t_debug *deb) {
 	t_loc		loc;
 	void		*res;
 
@@ -82,9 +84,9 @@ void		*realloc(void *ptr, size_t size) {
 	t_debug		deb;
 	size_t		old_size;
 
-	pthread_mutex_lock(&glob.mut);
+//	pthread_mutex_lock(&glob.mut);
 	res = raw_realloc(ptr, size, &old_size, &deb);
 	show_deb(deb, !!res, old_size, size, ptr, res);
-	pthread_mutex_unlock(&glob.mut);
+//	pthread_mutex_unlock(&glob.mut);
 	return (res);
 }

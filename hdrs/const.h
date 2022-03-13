@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:01 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/12 19:54:13 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 08:08:11 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@
 							"(-) Free," \
 							"(^) Increase," \
 							"(v) Decrease," \
-							"(&) Reallocate"
+							"(&) Reallocate,"\
+							"(*) Display"
 #define BUFF_SIZE			128
 
 typedef enum				e_loc {
@@ -62,6 +63,7 @@ typedef enum				e_debug {
 	INC = 22,
 	DEC = 35,
 	REALLOC = 48,
+	DISP = 63,
 }							t_debug;
 
 typedef enum				e_bool {

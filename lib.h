@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 09:50:23 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 10:59:52 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 08:02:58 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,5 +26,9 @@ void		*realloc(void *ptr, size_t size);
 ///////////////// free.c ///////////////////
 
 void		free(void *ptr);
+
+///////////////// show.c ///////////////////
+
+void		show_alloc_mem(void);
 
 #endif //LIB_H

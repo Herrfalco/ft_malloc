@@ -6,13 +6,13 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 19:23:04 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/12 19:19:44 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 12:17:08 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../hdrs/header.h"
 
-t_hdr		*space_from_zone(t_zone *zone, uint16_t size) {
+static t_hdr		*space_from_zone(t_zone *zone, uint16_t size) {
 	t_hdr		*cell;
 
 	for (size_t i = 0; i < zone->cell_nb; ++i) {
@@ -25,7 +25,7 @@ t_hdr		*space_from_zone(t_zone *zone, uint16_t size) {
 	return (NULL);
 }
 
-t_big_hdr 	*big_alloc(size_t size) {
+static t_big_hdr 	*big_alloc(size_t size) {
 	t_big_hdr		*cell;
 	t_big_hdr		*ptr;
 
@@ -54,6 +54,7 @@ void		*raw_malloc(size_t size, t_bool with_hdr, t_bool *is_big) {
 
 	if ((!glob.init && !init_glob()) || !size)
 		return (NULL);
+	fprintf(stderr, "\n%s\n", glob.init ? "INIT" : "NOT_INIT");
 	if (is_big)
 		*is_big = FALSE;
 	if (size <= glob.tiny.cell_sz - sizeof(t_hdr))
@@ -73,9 +74,9 @@ void		*raw_malloc(size_t size, t_bool with_hdr, t_bool *is_big) {
 void		*malloc(size_t size) {
 	void	*mem;
 
-	pthread_mutex_lock(&glob.mut);
+//	pthread_mutex_lock(&glob.mut);
 	mem = raw_malloc(size, FALSE, NULL);
 	show_deb(ALLOC, !!mem, size, 0, mem, NULL);
-	pthread_mutex_unlock(&glob.mut);
+//	pthread_mutex_unlock(&glob.mut);
 	return (mem);
 }

@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:39:36 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/09 08:40:01 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/13 12:24:56 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ t_glob		glob = {
 	.mut = PTHREAD_MUTEX_INITIALIZER,
 };
 
-void		align_zone(t_zone *zone) {
+static void		align_zone(t_zone *zone) {
 	size_t		cell_nb = zone->cell_nb;
 	size_t		cell_sz = zone->cell_sz;
 	size_t 		zone_sz = cell_sz * cell_nb;
@@ -63,11 +63,13 @@ t_bool		init_glob(void) {
 	if ((env_val = getenv(DEBUG_ENV_VAR)))
 		glob.debug = labcmp_icase(env_val);
 	if ((env_val = getenv(DEBUG_ENV_FILE))) {
+//		pthread_mutex_unlock(&glob.mut);
 		glob.debug_out = fopen(env_val, "w");
-		fclose(glob.debug_out);
-		glob.debug_out = fopen(env_val, "a");
+		glob.debug_out = freopen(env_val, "a", glob.debug_out);
+//		pthread_mutex_lock(&glob.mut);
 	} else
 		glob.debug_out = stderr;
+	fprintf(stderr, "\n%s\n", glob.debug_out == stderr ? "STD_ERR" : "CUSTOM");
 	align_zone(&glob.tiny);
 	align_zone(&glob.small);
 	if ((glob.tiny.mem = mmap(NULL, glob.tiny.cell_nb * glob.tiny.cell_sz,
