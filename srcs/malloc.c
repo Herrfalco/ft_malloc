@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 19:23:04 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 14:45:09 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/15 15:09:37 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ static t_big_hdr 	*big_alloc(size_t size) {
 					PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED)
 		return (NULL);
 	cell->size = size;
+	cell->capacity = (size / getpagesize() + !!(size % getpagesize()))
+		* getpagesize() - sizeof(t_big_hdr);
 	if (!glob.big || glob.big > cell) {
 		cell->next = glob.big;
 		cell->prev = NULL;

@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:36:21 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 14:45:15 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/15 15:14:28 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,7 @@ static void		*in_place(void *ptr, size_t size, size_t *old_size, t_loc loc,
 		case BIG:
 			*old_size = big_hdr->size;
 			*deb = *old_size < size ? INC : DEC;
-			if (size + sizeof(t_big_hdr)
-					<= ((big_hdr->size + sizeof(t_big_hdr)) / getpagesize()
-						+ !!((big_hdr->size + sizeof(t_big_hdr)) % getpagesize()))
-					* getpagesize()) {
+			if (size <= big_hdr->capacity) {
 				big_hdr->size = size;
 				return (ptr);
 			}

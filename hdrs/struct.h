@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:59 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 13:09:29 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/15 15:04:25 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ typedef struct				s_hdr {
 
 typedef struct				s_big_hdr {
 	size_t					size;
+	size_t					capacity;
 	struct s_big_hdr		*prev;
 	struct s_big_hdr		*next;
 } __attribute__((packed))	t_big_hdr;
