@@ -6,44 +6,53 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:22:53 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 14:45:25 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/25 16:10:42 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../hdrs/header.h"
 
-static size_t		free_from_zone(void *ptr) {
-	t_hdr		*hdr = ((t_hdr *)ptr) - 1;
-	size_t		old_size = hdr->size;
+static size_t		free_from_loc(void *ptr, t_loc loc, t_frame_hdr *frame) {
+	t_cell_hdr		*cell = ((t_cell_hdr *)ptr) - 1;
+	t_big_hdr		*big_hdr = ((t_big_hdr *)ptr) - 1;
+	size_t			old_size = cell->size;
+	t_zone			*zone;
 
-	hdr->size = 0;
-	return (old_size);
-}
-
-static size_t		free_big(void *ptr) {
-	t_big_hdr	*hdr = ((t_big_hdr *)ptr) - 1;
-	size_t		old_size = hdr->size;
-
-	if (hdr->prev)
-		hdr->prev->next = hdr->next;
-	else
-		glob.big = hdr->next;
-	if (hdr->next)
-		hdr->next->prev = hdr->prev;
-	return (munmap(hdr, hdr->size + sizeof(t_big_hdr)) ? 0 : old_size);
+	if ((loc == TINY || loc == SMALL) && cell->size) {
+			cell->size = 0;
+			--frame->infill;
+			if (!frame->infill) {
+				zone = loc == TINY ? &glob.tiny : &glob.small;
+				if (frame->prev)
+					frame->prev->next = frame->next;
+				else 
+					zone->frame = frame->next;	
+				if (frame->next)
+					frame->next->prev = frame->prev;
+				return (munmap(frame, sizeof(t_frame_hdr) + zone->cell_nb * zone->cell_sz)
+							? 0 : old_size);
+			} else
+				return (old_size);
+	} else if (loc == BIG) {
+		old_size = big_hdr->size;
+		if (big_hdr->prev)
+			big_hdr->prev->next = big_hdr->next;
+		else
+			glob.big = big_hdr->next;
+		if (big_hdr->next)
+			big_hdr->next->prev = big_hdr->prev;
+		return (munmap(big_hdr, big_hdr->size + sizeof(t_big_hdr)) ? 0 : old_size);
+	}
+	return (0);
 }
 
 size_t		raw_free(void *ptr) {
-	size_t		size;
-	t_loc		loc;
+	t_loc			loc;
+	t_frame_hdr		*frame;
 
-	if (!ptr || !glob.init || (loc = wich_loc(ptr)) == OTHER)
+	if (!ptr || (loc = wich_loc(ptr, &frame)) == OTHER)
 		return(0);
-	if (loc == TINY || loc == SMALL)
-		size = free_from_zone(ptr);
-	else
-		size = free_big(ptr);
-	return (size);
+	return (free_from_loc(ptr, loc, frame));
 }
 
 void		free(void *ptr) {

@@ -6,27 +6,33 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:01 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 14:57:16 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/25 20:16:35 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONST_H
 #define CONST_H
 
-#define MIN_CELL_NB			100
+#define MIN_CELL_NB			5
 #define MIN_TNY_UP_LIM		128
 #define MIN_SML_UP_LIM		4096
+
 #define DELIMITER			"--------------------------------------------" \
 							"--------------------------------------------\n"
 #define LAYOUT_PAD			" |  ," \
 							"    -  ," \
 							"        #," \
-							" >  "
+							" >  ," \
+							"    |  ," \
+							" +  ," \
+							"    +  "
 #define DEBUG_ENV_VAR		"M_DEBUG"
-#define DEBUG_LAB			"no," \
+#define SHOW_ENV_VAR		"M_SHOW"
+#define DEBUG_LAB			"layout," \
 							"minimal," \
-							"layout," \
 							"full"
+#define SHOW_LAB			"manual," \
+							"auto"
 #define DEBUG_OP			"(+) Allocate," \
 							"(-) Free," \
 							"(^) Increase," \
@@ -34,6 +40,7 @@
 							"(&) Reallocate,"\
 							"(*) Display"
 #define BUFF_SIZE			128
+#define ZONE_LINES			6
 #define STDOUT				stderr
 
 typedef enum				e_loc {
@@ -48,13 +55,18 @@ typedef enum				e_pad {
 	MEM = 5,	
 	DUMP = 13,
 	TOTAL = 23,
+	INDT = 28,
+	NODE = 36,
+	UNODE = 41,
 }							t_pad;
 
 typedef enum				e_lab_idx {
-	NO = 0,
-	MINIMAL = 3,
-	LAYOUT = 11,
-	FULL = 18,
+	DEFAULT = 0,
+	MANUAL = 0,
+	LAYOUT = 0,
+	MINIMAL = 7,
+	AUTO = 7,
+	FULL = 15,
 }							t_lab_idx;
 
 typedef enum				e_debug {

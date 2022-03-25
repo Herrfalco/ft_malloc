@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:24:17 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/13 14:39:05 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/25 20:16:15 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ char		sw_case(char c) {
 	return (c);
 }
 
-t_lab_idx	labcmp_icase(char *val) {
+t_lab_idx	labcmp_icase(char *val, char *labs) {
 	t_bool		beg = TRUE;
 	t_bool		diff;
 	size_t		i_sav;
@@ -40,13 +40,13 @@ t_lab_idx	labcmp_icase(char *val) {
 			i_sav = i;
 			val_i = 0;
 		}
-		if (!DEBUG_LAB[i] || DEBUG_LAB[i] == ',') {
+		if (!labs[i] || labs[i] == ',') {
 			if (!diff)
 				return(i_sav);
-			if (!DEBUG_LAB[i])
-				return (NO);
+			if (!labs[i])
+				return (DEFAULT);
 			beg = TRUE;
-		} else if (DEBUG_LAB[i] != val[val_i] && DEBUG_LAB[i] != sw_case(val[val_i]))
+		} else if (labs[i] != val[val_i] && labs[i] != sw_case(val[val_i]))
 			diff = TRUE;
 	}
 }
