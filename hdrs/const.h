@@ -6,14 +6,14 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:01 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/28 10:03:16 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/28 10:32:29 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONST_H
 #define CONST_H
 
-#define MIN_CELL_NB			5
+#define MIN_CELL_NB			100
 #define MIN_TNY_UP_LIM		128
 #define MIN_SML_UP_LIM		4096
 

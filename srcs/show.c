@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:35:26 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/28 10:12:06 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/28 11:48:31 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ static size_t		show_frame(char *title, t_zone *zone, t_frame_hdr *frame) {
 	char		*padz = LAYOUT_PAD + ZONE;
 	int			padz_prec = (int)str_len(padz, ',');
 
-	fprintf(STDOUT, "%.*s%s  : %p\n", padz_prec, padz, title, frame);
+	fprintf(STDOUT, "%.*s%-5s  : %p\n", padz_prec, padz, title, frame);
 	for (size_t i = 0; i < zone->cell_nb; ++i) {
 		cell = (t_cell_hdr *)((uint8_t *)(frame + 1) + i * zone->cell_sz);
 		if (cell->size) {
@@ -144,16 +144,22 @@ static size_t		rec_show_big(t_big_hdr *max) {
 	return (rec_show_big(new_max) + show_big(new_max));
 }
 
-static size_t		rec_show_frames(char *title, t_zone *zone, t_frame_hdr *max) {
+static size_t		rec_show_frames(t_frame_hdr *max) {
+	char			*titles[2] = { "TINY", "SMALL" };
+	t_zone			*zones[2] = { &glob.tiny, &glob.small };
 	t_frame_hdr		*new_max = NULL;
+	size_t			z_idx = 0;
 
-	for (t_frame_hdr *frame = zone->frame; frame; frame = frame->next)
-		if ((!max || frame < max) && frame > new_max)	
-			new_max = frame;
-	if (!new_max)
-		return (0);
-	return (new_max ? rec_show_frames(title, zone, new_max)
-		+ show_frame(title, zone, new_max) : 0);
+	for (size_t i = 0; i < 2; ++i) {
+		for (t_frame_hdr *frame = zones[i]->frame; frame; frame = frame->next) {
+			if ((!max || frame < max) && frame > new_max) {
+				new_max = frame;
+				z_idx = i;
+			}
+		}
+	}
+	return (new_max ? rec_show_frames(new_max)
+		+ show_frame(titles[z_idx], zones[z_idx], new_max) : 0);
 }
 
 static void		show_layout(t_debug deb) {
@@ -162,8 +168,7 @@ static void		show_layout(t_debug deb) {
 
 	if (glob.debug == MINIMAL && deb != DISP)
 		return;
-	total += rec_show_frames("TINY", &glob.tiny, NULL);
-	total += rec_show_frames("SMALL", &glob.small, NULL);
+	total += rec_show_frames(NULL);
 	total += rec_show_big(NULL);
 	fprintf(STDOUT, "%.*sTotal = %lu octets\n",
 			(int)str_len(padt, ','), padt, total);
