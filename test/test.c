@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:38:48 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/25 20:27:05 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/28 10:15:43 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 #include <stdio.h>
 
-//display order
 //wrong input
 //wrong define
 
@@ -27,8 +26,37 @@
 */
 
 int			main(void) {
-	show_zone_param();
+//	show_zone_param();
 
+/*
+	char		*a1[8] = { NULL };
+	char		*a2[8] = { NULL };
+	char		*a3[8] = { NULL };
+	char		*a4[8] = { NULL };
+
+	show_alloc_mem();
+
+	for (int i = 0; i < 8; ++i)
+		a1[i] = malloc(i + 10);
+	for (int i = 0; i < 8; ++i)
+		a2[i] = malloc(i + 20);
+	for (int i = 0; i < 8; ++i)
+		a3[i] = malloc(i + 30);
+	for (int i = 0; i < 8; ++i)
+		a4[i] = malloc(i + 40);
+
+	show_alloc_mem();
+
+	for (int i = 0; i < 8; ++i)
+		free(a3[i]);
+
+	show_alloc_mem();
+
+	for (int i = 0; i < 8; ++i)
+		a3[i] = malloc(i + 30);
+
+	show_alloc_mem();
+	*/
 	char		*arr[10] = { NULL };
 
 	for (int i = 0; i < 10; ++i)
@@ -37,7 +65,7 @@ int			main(void) {
 	for (int i = 0; i < 10; ++i)
 		*(arr[i]) = i + 1;
 
-	show_alloc_mem();
+//	show_alloc_mem();
 
 	for (int i = 0; i < 10; ++i)
 		arr[i] = realloc(arr[i], i + 500);
@@ -56,9 +84,12 @@ int			main(void) {
 	((char *)arr[9])[8] = 0;
 	((char *)arr[9])[9] = 0x19;
 
-	show_alloc_mem();
+//	show_alloc_mem();
 
-	for (int i = 0; i < 10; ++i)
-		free(arr[i]);
+	free(arr[9]);
+	arr[9] = malloc(99999);
+	*(int *)arr[9] = 999;
+
+	show_alloc_mem();
 	return (0);
 }

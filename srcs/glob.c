@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:39:36 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/25 20:01:07 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/28 09:50:28 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,13 @@ t_glob			glob;
 
 static void		align_zone(t_zone *zone) {
 	size_t		cell_nb = zone->cell_nb;
-	size_t		cell_sz = zone->cell_sz;
+	size_t		cell_sz = round_nb(zone->cell_sz, sizeof(void *));
 	size_t 		zone_sz = sizeof(t_frame_hdr) + cell_sz * cell_nb;
-	size_t		page_nb = zone_sz / getpagesize() + !!(zone_sz % getpagesize());
+	size_t		page_nb = round_nb(zone_sz, getpagesize()) / getpagesize();
 
 	for (;; ++page_nb) {
-		cell_sz = zone->cell_sz;
-		for (;; ++cell_sz) {
+		cell_sz = round_nb(zone->cell_sz, sizeof(void *));
+		for (;; cell_sz += sizeof(void *)) {
 			cell_nb = zone->cell_nb;
 			zone_sz = sizeof(t_frame_hdr) + cell_nb * cell_sz;
 			if (zone_sz > page_nb * getpagesize())
@@ -32,7 +32,7 @@ static void		align_zone(t_zone *zone) {
 				zone_sz = sizeof(t_frame_hdr) + cell_nb * cell_sz;
 				if (zone_sz > page_nb * getpagesize())
 					break;
-				if (!(zone_sz % sizeof(size_t)) && zone_sz == page_nb * getpagesize()) {
+				if (!(zone_sz % sizeof(void *)) && zone_sz == page_nb * getpagesize()) {
 					zone->cell_sz = cell_sz;
 					zone->cell_nb = cell_nb;
 					return;

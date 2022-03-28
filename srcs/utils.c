@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:24:17 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/25 20:16:15 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/28 09:25:25 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,4 +71,8 @@ void		copy_n_bytes(uint8_t *dst, uint8_t *src, size_t n) {
 			mod = sizeof(uint8_t);
 		}
 	}
+}
+
+size_t		round_nb(size_t nb, size_t delta) {
+	return ((nb / delta + !!(nb % delta)) * delta);
 }

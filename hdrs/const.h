@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:01 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/25 20:16:35 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/28 10:03:16 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@
 							"minimal," \
 							"full"
 #define SHOW_LAB			"manual," \
-							"auto"
+							"auto," \
+							"no"
 #define DEBUG_OP			"(+) Allocate," \
 							"(-) Free," \
 							"(^) Increase," \
@@ -66,6 +67,7 @@ typedef enum				e_lab_idx {
 	LAYOUT = 0,
 	MINIMAL = 7,
 	AUTO = 7,
+	NO = 12,
 	FULL = 15,
 }							t_lab_idx;
 

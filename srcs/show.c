@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:35:26 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/25 20:22:12 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/28 10:12:06 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,14 +40,15 @@ static void		zone_param_iter(char *name, t_zone *zone, size_t state) {
 			sprintf(buff, "%.*s%lu octets (%lu pages of %d bytes)",
 					(int)str_len(LAYOUT_PAD + TOTAL, ','), LAYOUT_PAD + TOTAL,
 					sizeof(t_frame_hdr) + zone->cell_nb * zone->cell_sz,
-					zone->cell_nb * zone->cell_sz / getpagesize()
-					+ !!(zone->cell_nb * zone->cell_sz % getpagesize()),
+					round_nb(zone->cell_nb * zone->cell_sz, getpagesize()) / getpagesize(),
 					getpagesize());
 	}
 	fprintf(STDOUT, "%-42s", buff);
 }
 
 void		show_zone_param(void) {
+	if (glob.show == NO)
+		return;
 	if (!glob.fline) {
 		glob.fline = TRUE;
 		fprintf(STDOUT, DELIMITER);
@@ -97,12 +98,15 @@ static void		show_dump(void *ptr, size_t size) {
 	(void)line;
 }
 
-static size_t		show_frame(t_zone *zone, t_frame_hdr *frame) {
+static size_t		show_frame(char *title, t_zone *zone, t_frame_hdr *frame) {
 	t_cell_hdr	*cell;
 	uint8_t		*data;
 	size_t		total = 0;
 	char		*pad = LAYOUT_PAD + MEM;
+	char		*padz = LAYOUT_PAD + ZONE;
+	int			padz_prec = (int)str_len(padz, ',');
 
+	fprintf(STDOUT, "%.*s%s  : %p\n", padz_prec, padz, title, frame);
 	for (size_t i = 0; i < zone->cell_nb; ++i) {
 		cell = (t_cell_hdr *)((uint8_t *)(frame + 1) + i * zone->cell_sz);
 		if (cell->size) {
@@ -116,39 +120,51 @@ static size_t		show_frame(t_zone *zone, t_frame_hdr *frame) {
 	return (total);
 }
 
-static size_t		show_big_alloc(void) {
-	size_t		total = 0;
-	char		*pad = LAYOUT_PAD + MEM;
+static size_t		show_big(t_big_hdr *new_max) {
+	char			*pad = LAYOUT_PAD + MEM;
 
-	for (t_big_hdr *ptr = glob.big; ptr; ptr = ptr->next) {
-		fprintf(STDOUT, "%.*s%p - %p : %lu octets\n",
-			(int)str_len(pad, ','), pad, ptr + 1, ptr + 1 + ptr->size, ptr->size);
-		show_dump(ptr + 1, ptr->size);	
-		total += ptr->size;
-	}
-	return (total);
+	fprintf(STDOUT, "%.*s%p - %p : %lu octets\n", (int)str_len(pad, ','),
+		pad, new_max + 1, (uint8_t *)(new_max + 1) + new_max->size, new_max->size);
+	show_dump(new_max + 1, new_max->size);	
+	return (new_max->size);
 }
 
-static void		show_layout(void) {
-	size_t			total = 0;
+static size_t		rec_show_big(t_big_hdr *max) {
 	char			*padz = LAYOUT_PAD + ZONE;
-	char			*padt = LAYOUT_PAD + TOTAL;
 	int				padz_prec = (int)str_len(padz, ',');
+	t_big_hdr		*new_max = NULL;
 
-	if (glob.debug == MINIMAL)
-		return;
-	for (t_frame_hdr *frame = glob.tiny.frame; frame; frame = frame->next) {
-		fprintf(STDOUT, "%.*sTINY  : %p\n", padz_prec, padz, frame);
-		total += show_frame(&glob.tiny, frame);
-	}
-	for (t_frame_hdr *frame = glob.small.frame; frame; frame = frame->next) {
-		fprintf(STDOUT, "%.*sSMALL : %p\n", padz_prec, padz, frame);
-		total += show_frame(&glob.small, frame);
-	}
-	if (glob.big) {
+	for (t_big_hdr *big = glob.big; big; big = big->next)
+		if ((!max || big < max) && big > new_max)
+			new_max = big;
+	if (!new_max)
+		return (0);
+	if (!max)
 		fprintf(STDOUT, "%.*sLARGE : %p\n", padz_prec, padz, glob.big);
-		total += show_big_alloc();
-	}
+	return (rec_show_big(new_max) + show_big(new_max));
+}
+
+static size_t		rec_show_frames(char *title, t_zone *zone, t_frame_hdr *max) {
+	t_frame_hdr		*new_max = NULL;
+
+	for (t_frame_hdr *frame = zone->frame; frame; frame = frame->next)
+		if ((!max || frame < max) && frame > new_max)	
+			new_max = frame;
+	if (!new_max)
+		return (0);
+	return (new_max ? rec_show_frames(title, zone, new_max)
+		+ show_frame(title, zone, new_max) : 0);
+}
+
+static void		show_layout(t_debug deb) {
+	char			*padt = LAYOUT_PAD + TOTAL;
+	size_t			total = 0;
+
+	if (glob.debug == MINIMAL && deb != DISP)
+		return;
+	total += rec_show_frames("TINY", &glob.tiny, NULL);
+	total += rec_show_frames("SMALL", &glob.small, NULL);
+	total += rec_show_big(NULL);
 	fprintf(STDOUT, "%.*sTotal = %lu octets\n",
 			(int)str_len(padt, ','), padt, total);
 }
@@ -156,7 +172,7 @@ static void		show_layout(void) {
 void		show_deb(t_debug deb, t_bool res, size_t s1, size_t s2, void *p1, void *p2) {
 	char		buff[BUFF_SIZE];
 
-	if (glob.show == MANUAL && deb != DISP)
+	if (glob.show == NO || (glob.show == MANUAL && deb != DISP))
 		return;
 	if (!glob.fline) {
 		glob.fline = TRUE;
@@ -178,13 +194,12 @@ void		show_deb(t_debug deb, t_bool res, size_t s1, size_t s2, void *p1, void *p2
 		else
 			sprintf(buff, "%p", p1);
 		fprintf(STDOUT, "%40s\n", buff);
-		show_layout();
+		show_layout(deb);
 	} else {
 		sprintf(buff, "FAILED");
 		fprintf(STDOUT, "%33s\n", buff);
 	}
-	if (glob.debug != MINIMAL)
-		fprintf(STDOUT, DELIMITER);
+	fprintf(STDOUT, DELIMITER);
 }
 
 void		show_alloc_mem(void) {

@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:31:48 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/25 19:50:45 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/28 09:25:42 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ size_t				str_len(char *str, char del);
 char				sw_case(char c);
 t_lab_idx			labcmp_icase(char *val, char *labs);
 void				copy_n_bytes(uint8_t *dst, uint8_t *src, size_t n);
+size_t				round_nb(size_t nb, size_t delta);
 
 ///////////////// loc.c //////////////////
 
