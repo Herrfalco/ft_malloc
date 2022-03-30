@@ -6,16 +6,25 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:31:48 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/28 09:25:42 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/29 20:49:40 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PROTO_H
 #define PROTO_H
 
-///////////////// utils.c //////////////////
+///////////////// str.c ////////////////////
 
 size_t				str_len(char *str, char del);
+void				str_push(char *dst, char *src, t_just just, ssize_t width, ssize_t prec);
+void				str_print(char *str, t_just just, ssize_t width, ssize_t prec);
+void				str_push_size(char *dst, size_t nb, t_just just, ssize_t width);
+void				str_print_size(size_t nb, t_just just, ssize_t width);
+void				str_push_hex(char *dst, size_t nb, t_just just, ssize_t width, ssize_t prec);
+void				str_print_hex(size_t nb, t_just just, ssize_t width, ssize_t prec);
+
+///////////////// utils.c //////////////////
+
 char				sw_case(char c);
 t_lab_idx			labcmp_icase(char *val, char *labs);
 void				copy_n_bytes(uint8_t *dst, uint8_t *src, size_t n);

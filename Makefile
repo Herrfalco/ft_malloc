@@ -10,6 +10,7 @@ SRCS		=	srcs/free.c \
 			srcs/realloc.c \
 			srcs/show.c \
 			srcs/utils.c \
+			srcs/str.c \
 			srcs/loc.c
 OBJS		=	$(SRCS:.c=.o)
 CC		=	gcc

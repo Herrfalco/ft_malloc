@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:27:01 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/28 10:32:29 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/29 13:08:48 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@
 							"(*) Display"
 #define BUFF_SIZE			128
 #define ZONE_LINES			6
-#define STDOUT				stderr
+#define STDOUT				2
 
 typedef enum				e_loc {
 	OTHER,
@@ -84,5 +84,10 @@ typedef enum				e_bool {
 	FALSE,
 	TRUE,
 }							t_bool;
+
+typedef enum				e_just {
+	LEFT,
+	RIGHT,
+}							t_just;
 
 #endif //CONST_H

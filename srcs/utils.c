@@ -6,18 +6,11 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 08:24:17 by fcadet            #+#    #+#             */
-/*   Updated: 2022/03/28 09:25:25 by fcadet           ###   ########.fr       */
+/*   Updated: 2022/03/29 20:48:16 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../hdrs/header.h"
-
-size_t		str_len(char *str, char del) {
-	size_t		len = 0;
-	
-	for (len = 0; str[len] && str[len] != del; ++len);
-	return (len);
-}
 
 char		sw_case(char c) {
 	if (c >= 'a' && c <= 'z')
